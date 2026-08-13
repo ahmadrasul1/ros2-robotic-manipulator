@@ -1,0 +1,76 @@
+# WP3 Task 1 physical-kinematics calibration.
+#
+# The geometry values below are used for audits and cross-file verification.
+# The model<->drive signs below are applied only by the post-homing CSP runtime.
+# No homing search, switch logic, or method-37 zero assignment is changed.
+
+calibration_id: group11_physical_geometry_z_calibration_v2
+geometry_verified_from_supplied_drawings: true
+
+physical_geometry:
+  base_to_shoulder_axis_z_m: 0.057441
+  shoulder_to_upper_joint_xyz_m: [-0.011056, -0.005980, 0.065560]
+  upper_joint_to_lower_joint_m: 0.170000
+  lower_joint_to_end_effector_axis_m: 0.124090
+  end_effector_axis_to_tcp_m: 0.070000
+  lower_joint_to_tcp_m: 0.194090
+  geometry_tolerance_m: 0.001000
+
+# q_drive = drive_rad_at_model_zero + model_to_drive_sign * q_model
+# q_model = model_to_drive_sign * (q_drive - drive_rad_at_model_zero)
+#
+# Hardware testing showed that the upper-arm and end-effector drive directions
+# are opposite to their ROS/URDF model directions. The mapping is applied after
+# homing, inside pdo_csp_bridge.py, so the proven homing process is unaffected.
+model_drive_mapping_candidate:
+  runtime_application: pdo_csp_bridge
+  calibration_verified: true
+  model_to_drive_sign: [1.0, -1.0, 1.0, -1.0]
+  drive_rad_at_model_zero: [0.0, 0.0, 0.0, 0.0]
+
+task_frame_calibration:
+  target_xy_correction_base_m: [0.01, -0.010]
+  target_z_correction_m: 0.0
+  location_z_correction_m:
+    cube1_start: -0.118
+    cube2_3_start: -0.140
+    cube3_buffer: -0.140
+    goal: 0.0
+  calibration_verified_from_hardware_test: false
+  note: "Documentation mirror only. Active values live in task1_cube_poses.yaml."
+
+gripper_calibration:
+  open_gap_m_from_current_urdf_stl: 0.043194
+  cube_width_m: 0.041000
+  rack_travel_m_per_rad: 0.012000
+  nominal_contact_rad: -0.182833333
+  runtime_lower_limit_rad: -0.250000
+
+# Supplied physical reach observations. These are paired geometric reference
+# poses, not independent software joint limits.
+physical_reach_reference_poses:
+  angle_convention:
+    upper_arm: angle relative to the robot vertical/Y reference
+    lower_arm: angle relative to the robot horizontal/X reference
+  max_reach:
+    upper_arm_angle_rad: 1.13097
+    lower_arm_angle_rad: -1.13097
+  min_reach:
+    upper_arm_angle_rad: 0.52360
+    lower_arm_angle_rad_as_supplied: 1.22173
+
+  # Do not turn these two observations directly into ROS joint limits. The upper
+  # value is measured from a vertical reference and the lower value from a
+  # horizontal reference, while the URDF coordinates are relative joint angles.
+  # The sign of the supplied min-reach lower-arm angle must be confirmed on the
+  # real robot before it is used for an encoder/URDF offset calibration.
+  enforcement: documentation_only
+
+# Final hardware-tested URDF values used by the repository consistency audit.
+# These are kept separate from the nominal drawing dimensions above so the
+# audit can detect accidental edits to the calibrated ROS model without
+# rewriting the physical reference measurements.
+urdf_reference:
+  lowerarm_joint_origin_xyz_m: [0.170, 0.0189, -0.0805]
+  gripper_tcp_joint_origin_xyz_m: [0.185, -0.003, 0.0]
+  upperarm_visual_origin_xyz_m: [0.0, 0.0, 0.0]

@@ -1,0 +1,68 @@
+# FAULHABER MC 5004 P ET cyclic process-data configuration for safe commissioning.
+#
+# Standard mapping selected explicitly by pdo_csp_bridge.py:
+#   RxPDO2 / 0x1601 -> 0x6040:00 Controlword (U16)
+#                       0x607A:00 Target Position (S32)
+#   TxPDO2 / 0x1A01 -> 0x6041:00 Statusword (U16)
+#                       0x6064:00 Position Actual Value (S32)
+#
+# This default file is genuinely no-motion commissioning: startup does not
+# home or reposition any axis, and CSP only holds measured positions. Select
+# ethercat_pdo_homing.yaml explicitly to test arm homing/pick-ready positioning,
+# or ethercat_pdo_task1.yaml only after all Task 1 prerequisites are validated.
+
+ethercat:
+  interface: enx3c18a026482c
+  cycle_time_us: 10000
+  processdata_timeout_us: 5000
+  use_distributed_clocks: true
+  dc_shift_ns: 0
+
+startup:
+  # No startup motion. The drives enter CSP holding their measured positions;
+  # the ready marker correctly reports that no arm reference was established.
+  mode: hold_current
+
+runtime:
+  command_socket: /tmp/rascl_csp.sock
+  ready_file: /tmp/rascl_pdo_ready
+  command_watchdog_ms: 250
+  wkc_fault_cycles: 3
+  state_fault_cycles: 5
+  timing_fault_cycles: 3
+  max_cycle_lateness_us: 2000
+  feedback_log_period_s: 1.0
+  realtime_priority: 50
+  cpu_affinity: null
+
+safety:
+  # Safe default: PDO feedback and holding are enabled, trajectory motion is not.
+  allow_motion: false
+  allow_unhomed_motion: false
+
+  # Do not use this compatibility value to bypass homing. The bridge publishes
+  # the actual end-effector reference result from the current startup run.
+  # Compatibility field only. Runtime readiness is derived from the
+  # completed one-switch homing result, never from this YAML value.
+  gripper_reference_valid: false
+
+  abort_connection_option_code: 3
+  quick_stop_option_code: 5
+  halt_option_code: 1
+
+  # Keep synchronized with rascl.urdf.xacro and robot_limits.yaml.
+  position_min_rad: [-1.570796327, -1.5708, -1.571000, -0.700000]
+  position_max_rad: [ 1.570796327,  1.5708,  1.571000,  0.020000]
+  max_velocity_rad_s: [6.0, 6.0, 6.0, 0.8]
+  max_tracking_error_rad: [0.08, 0.08, 0.08, 0.10]
+  # Drive-side 0x6065/0x6066 following-error supervision. The tighter
+  # end-effector window must be satisfied by calibrating hardware_hold_rad,
+  # not by hiding cube-contact error with a large tolerance.
+  drive_following_error_window_rad: [0.08, 0.08, 0.06, 0.02]
+  drive_following_error_timeout: [500, 500, 500, 100]
+  minimum_motor_speed_rpm: [0, 0, 0, 500]
+  first_command_tolerance_rad: [0.03, 0.03, 0.03, 0.05]
+
+  # Only the feedback-synchronized first command may be clamped by this tiny
+  # amount when encoder quantization places it just outside a software limit.
+  initial_sync_limit_tolerance_rad: [0.001, 0.001, 0.001, 0.001]

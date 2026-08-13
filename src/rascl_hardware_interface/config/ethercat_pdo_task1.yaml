@@ -1,0 +1,71 @@
+# Task 1 motion configuration.
+#
+# This file is used by wp3_homing_hardware.launch.py. That launch owns the
+# persistent hardware session: it homes and verifies all four joints, moves to
+# the all-zero pick-ready pose, enters CSP, and publishes the current-run facts
+# in the PDO-ready marker. wp3_tsk1_hardware.launch.py then connects to that
+# already-running session and never starts homing itself.
+
+ethercat:
+  interface: enx3c18a026482c
+  cycle_time_us: 10000
+  processdata_timeout_us: 5000
+  use_distributed_clocks: true
+  dc_shift_ns: 0
+
+startup:
+  mode: home_then_pick_ready
+
+
+# Post-homing ROS/URDF model coordinate -> drive coordinate mapping.
+#
+# q_drive = drive_rad_at_model_zero + model_to_drive_sign * q_model
+#
+# The upper-arm and end-effector directions were observed inverted on hardware.
+# Applying the signs here keeps RViz, IK and trajectory coordinates unchanged.
+#
+# The previous +0.050 rad lower-arm zero trial was too small to explain a
+# roughly 150 mm TCP height error (its maximum tip effect is only about 10 mm).
+# It is therefore removed instead of mixing an unverified joint-zero correction
+# into the new Cartesian depth calibration. Homing and method-37 zero assignment
+# remain unchanged.
+kinematics:
+  # Joint order: shoulder, upperarm, lowerarm, end_effector
+  model_to_drive_sign: [1.0, -1.0, 1.0, -1.0]
+  drive_rad_at_model_zero: [0.0, 0.0, 0.000000, 0.0]
+
+runtime:
+  command_socket: /tmp/rascl_csp.sock
+  ready_file: /tmp/rascl_pdo_ready
+  command_watchdog_ms: 250
+  wkc_fault_cycles: 3
+  state_fault_cycles: 5
+  timing_fault_cycles: 3
+  max_cycle_lateness_us: 2000
+  feedback_log_period_s: 1.0
+  realtime_priority: 50
+  cpu_affinity: null
+
+safety:
+  allow_motion: true
+  allow_unhomed_motion: false
+  # Compatibility field only. Runtime readiness is derived from the
+  # completed one-switch homing result, never from this YAML value.
+  gripper_reference_valid: false
+
+  abort_connection_option_code: 3
+  quick_stop_option_code: 5
+  halt_option_code: 1
+
+  position_min_rad: [-1.570796327, -1.5708, -1.571000, -0.700000]
+  position_max_rad: [ 1.570796327,  1.5708,  1.571000,  0.020000]
+  max_velocity_rad_s: [6.0, 6.0, 6.0, 0.8]
+  max_tracking_error_rad: [0.08, 0.08, 0.08, 0.10]
+  # Drive-side 0x6065/0x6066 following-error supervision. The tighter
+  # end-effector window must be satisfied by calibrating hardware_hold_rad,
+  # not by hiding cube-contact error with a large tolerance.
+  drive_following_error_window_rad: [0.08, 0.08, 0.06, 0.02]
+  drive_following_error_timeout: [500, 500, 500, 100]
+  minimum_motor_speed_rpm: [0, 0, 0, 500]
+  first_command_tolerance_rad: [0.03, 0.03, 0.03, 0.05]
+  initial_sync_limit_tolerance_rad: [0.001, 0.001, 0.001, 0.001]

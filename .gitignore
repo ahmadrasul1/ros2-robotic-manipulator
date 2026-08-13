@@ -1,0 +1,43 @@
+# ROS 2 / colcon
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments and local configuration
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+env/
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Local shell/container state
+.devcontainer/.bash_history
+
+# Local runtime artifacts
+*.log
+*.pid
+
+# Keys / credentials
+*.pem
+*.key
+*.p12
+*.pfx

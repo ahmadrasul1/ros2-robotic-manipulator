@@ -1,0 +1,27 @@
+# Runtime settings for wp3_tsk1.
+# This file is read by humans for now; launch parameters below mirror these values.
+
+execution:
+  # joint_states = visualization-only; controller = publish the same resampled
+  # trajectory to the forward position controller and cyclic PDO bridge.
+  mode: joint_states
+
+  joint_names:
+    - shoulder_joint
+    - upperarm_joint
+    - lowerarm_joint
+    - end_effector_joint
+
+  controller_topic: /joint_position_controller/commands
+  joint_states_topic: /joint_states
+  publish_rate_hz: 100.0
+  hold_last_sample: true
+
+  default_trajectory_file: task1_full_simulation_ik.csv
+
+safety:
+  # The PDO bridge independently validates position, velocity, tracking error,
+  # Statusword state and command watchdog timing.
+  max_allowed_position_error_rad: 0.10
+  require_homing_before_hardware_execution: true
+  allow_hardware_execution_with_placeholder_waypoints: false

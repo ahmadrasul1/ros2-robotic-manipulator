@@ -1,0 +1,113 @@
+# Confirmed WP3 Task 1 geometry and Cartesian planning input.
+#
+# Board frame:
+#   - origin: shoulder rotation axis
+#   - +Y_board: arm direction when shoulder_joint = 0
+#   - +X_board: direction reached by increasing shoulder_joint
+#
+# Conversion to the URDF base_link frame:
+#   x_base = y_board
+#   y_base = x_board
+#   z_base = z_board
+#
+# All distances are in metres.
+
+frames:
+  robot_base_frame: base_link
+  tool_frame: gripper_tcp
+
+board:
+  # Confirmed cardboard top surface height above the robot mounting plane: 8 mm.
+  surface_z_m: 0.0080
+
+  # Global board-to-base Z correction. Keep this at zero unless the complete
+  # board plane is re-measured relative to base_link. It is applied to every
+  # cube and goal target.
+  target_z_correction_m: 0.00
+
+  # Empirical Z calibration split by task location. The previous single global
+  # correction could make the far cube-1 pose unreachable; when generation
+  # failed, the atomic generator correctly kept the old CSV, which made it look
+  # as if the YAML change did nothing.
+  #
+  # The near cube/buffer locations can accept almost the full measured 150 mm
+  # correction. The farther cube-1 location cannot: at -0.150 m it violates the
+  # current IK reach/limits. Therefore the corrections are location-specific.
+  #
+  # First validation values:
+  #   cube2_3_start / cube3_buffer: lower by 140 mm (leave ~10 mm safety)
+  #   cube1_start:                 lower by 118 mm (reach-limited)
+  #   goal:                        unchanged until placement height is tested
+  location_z_correction_m:
+    cube1_start: 0.000
+    cube2_3_start: 0.000
+    cube3_buffer: 0.000
+    goal: 0.000
+
+  # Residual translation in base_link axes. Keep this at zero while calibrating
+  # yaw; apply a constant XY correction only after the distance-dependent
+  # angular error has been removed.
+  target_xy_correction_base_m: [0.0, 0.0]
+
+  board_to_base_xy:
+    x_base_from: y_board
+    y_base_from: x_board
+    x_base_sign: 1.0
+    y_base_sign: 1.0
+
+    # Additional measured rotation of the physical board relative to the
+    # nominal board/base alignment. Positive is counterclockwise around +Z_base.
+    yaw_correction_rad: 0.0260033
+
+cube:
+  # Drawing-confirmed dimensions:
+  # - stack height: 40 mm
+  # - radial depth: 40 mm
+  # - width between gripper contact faces: 41 mm
+  height_m: 0.040
+  radial_depth_m: 0.040
+  gripped_width_m: 0.041
+
+planning:
+  approach_clearance_m: 0.060
+  position_tolerance_m: 0.0005
+
+  # Arm-only seed. The fourth gripper coordinate is added by the generator.
+  # This value already exists in the latest repository, but must still be
+  # physically validated before hardware execution.
+  pick_ready_arm_rad: [0.0, 0.0, 0.0]
+
+  # Deterministic seed used by Robotics Toolbox when it needs extra searches.
+  random_seed: 11
+
+poses_board_xy_m:
+  cube1_start: [-0.220, 0.120]
+  cube2_3_start: [0.040, 0.180]
+  cube3_buffer: [0.110, 0.150]
+  goal: [0.100, 0.070]
+
+# Radii are independent of the board/base axis swap.
+radii_documentation:
+  cube1_radius_m: 0.2505992817
+  cube2_3_radius_m: 0.1843908891
+  cube3_buffer_radius_m: 0.1860107524
+  goal_radius_m: 0.1220655562
+
+  required_order:
+    - cube1_radius_m
+    - cube2_3_radius_m
+    - goal_radius_m
+
+  requirement_satisfied: true
+
+gripper:
+  open_rad: 0.0
+  open_gap_m: 0.046
+  rack_travel_m_per_rad: 0.012
+  geometric_contact_rad: -0.416
+  hardware_hold_rad: -0.55
+
+notes:
+  - "Cube 3 initially sits on Cube 2 and is moved to the buffer first."
+  - "The final stack order is Cube 1, Cube 2, Cube 3."
+  - "No joint limit is changed by this file. IK must satisfy the current URDF limits."

@@ -1,0 +1,320 @@
+<?xml version="1.0"?>
+
+<robot name="rascl_robot">
+
+  <!-- ========================= -->
+  <!-- World -->
+  <!-- ========================= -->
+
+  <link name="world" />
+
+  <joint name="base_link_joint" type="fixed">
+    <parent link="world" />
+    <child link="base_link" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+
+
+  <!-- ========================= -->
+  <!-- Base Link -->
+  <!-- ========================= -->
+
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rascl_description/meshes/base_link.dae" />
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rascl_description/meshes/base_link.stl" />
+      </geometry>
+    </collision>
+  </link>
+
+
+  <!-- ========================= -->
+  <!-- Shoulder Joint + Shoulder -->
+  <!-- ========================= -->
+
+  <joint name="shoulder_joint" type="revolute">
+    <parent link="base_link" />
+    <child link="shoulder" />
+
+    <!-- From drawing/provided base-shoulder setup: 57.441 mm -->
+    <origin xyz="0 0 0.057441" rpy="0 0 0" />
+
+    <axis xyz="0 0 1" />
+    <limit lower="-1.570796327" upper="1.570796327" effort="100.0" velocity="6.0" />
+  </joint>
+
+  <link name="shoulder">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rascl_description/meshes/shoulder.dae" />
+      </geometry>
+    </visual>
+  </link>
+
+
+  <!-- ========================= -->
+  <!-- Upper Arm Joint + Link -->
+  <!-- ========================= -->
+<joint name="upperarm_joint" type="revolute">
+  <parent link="shoulder" />
+  <child link="upperarm" />
+
+  
+  <origin xyz="-0.011056 -0.005980 0.06556" rpy="0 -1.570796327 0" />
+
+  <axis xyz="0 1 0" />
+  <limit lower="-1.5708" upper="1.5708" effort="100.0" velocity="6.0" />
+</joint>
+
+<link name="upperarm">
+  <visual>
+    <!--
+      The CAD mesh origin is retained at the link frame in the final calibrated
+      model. The corresponding offset is represented in the downstream joint
+      transform, matching the hardware-tested URDF used to generate trajectories.
+    -->
+    <origin xyz="0 0 0" rpy="4.7124 0 0" />
+    <geometry>
+      <mesh filename="package://rascl_description/meshes/upperarm.dae" />
+    </geometry>
+  </visual>
+
+  <collision>
+    <origin xyz="0 0 0" rpy="4.7124 0 0" />
+    <geometry>
+      <mesh filename="package://rascl_description/meshes/upperarm.stl" />
+    </geometry>
+  </collision>
+</link>
+  <!-- ========================= -->
+  <!-- Lower Arm Joint + Link -->
+  <!-- ========================= -->
+
+  <joint name="lowerarm_joint" type="revolute">
+  <parent link="upperarm" />
+  <child link="lowerarm" />
+
+  <!--
+    The 170 mm nominal arm length is combined here with the final calibrated
+    CAD/link-frame offset used by the hardware-tested model. Keep this transform
+    synchronized with kinematics_calibration.yaml and regenerated trajectories.
+  -->
+  <origin xyz="0.170 0.0189 -0.0805" rpy="0 1.5708 0" />
+
+  <axis xyz="0 1 0" />
+  <limit lower="-1.571000" upper="1.571000" effort="100.0" velocity="6.0" />
+</joint>
+
+<link name="lowerarm">
+  <visual>
+    <!-- your working lowerarm rotation, plus mesh-origin correction -->
+    <origin xyz="0 0.0189 0" rpy="1.5708 0 0" />
+    <geometry>
+      <mesh filename="package://rascl_description/meshes/lowerarm.dae" />
+    </geometry>
+  </visual>
+
+  <collision>
+    <origin xyz="0 0.0189 0" rpy="1.5708 0 0" />
+    <geometry>
+      <mesh filename="package://rascl_description/meshes/lowerarm.stl" />
+    </geometry>
+  </collision>
+</link>
+  <!-- ========================= -->
+  <!-- Gear/Rail Gripper -->
+  <!-- ========================= -->
+
+  <!--
+    The new gripper meshes were exported in millimeters.
+    The mesh-local gear shaft center is approximately:
+      x = 0 mm, y = -10 mm, z = 0 mm
+    Therefore each mesh visual/collision origin uses xyz="0 0.010 0"
+    with scale="0.001 0.001 0.001".
+
+    The joint rpy="0 0 1.5708" rotates the gripper assembly so:
+      mesh local -Y  -> lowerarm +X  (finger length points forward)
+      mesh local +X  -> lowerarm +Y  (rail sliding/opening direction)
+      mesh local +Y  -> lowerarm -X  (gear shaft axis becomes lowerarm X)
+  -->
+
+  <joint name="fixed_finger_joint" type="fixed">
+    <parent link="lowerarm" />
+    <child link="fixed_finger" />
+
+    <!-- Same shaft-center frame as the gear, but fixed to the lowerarm -->
+    <origin xyz="0.12800 -0.012 0" rpy="0 0 1.5708" />
+  </joint>
+
+  <link name="fixed_finger">
+    <visual>
+      <origin xyz="0.0 -0.005 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rascl_description/meshes/fixed_finger.stl"
+              scale="0.001 0.001 0.001" />
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0.010 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rascl_description/meshes/fixed_finger.stl"
+              scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+
+
+  <joint name="end_effector_joint" type="revolute">
+    <parent link="lowerarm" />
+    <child link="tool_gear" />
+
+    <!-- End-effector motor axis: 124.09 mm from the lower-arm joint axis. -->
+    <origin xyz="0.12409 0 0" rpy="0 0 1.5708" />
+
+    <!-- Mesh-local gear shaft axis. After the rpy above, this is along lowerarm X. -->
+    <axis xyz="0 1 0" />
+
+    <!-- Conservative Task 1 closing envelope. Nominal cube contact is -0.18283 rad. -->
+    <limit lower="-0.700000" upper="0.020000" effort="20.0" velocity="0.8" />
+  </joint>
+
+  <link name="tool_gear">
+    <visual>
+      <origin xyz="0 0.010 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rascl_description/meshes/tool_gear.stl"
+              scale="0.001 0.001 0.001" />
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0.010 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rascl_description/meshes/tool_gear.stl"
+              scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+
+
+  <joint name="rail_finger_joint" type="prismatic">
+    <parent link="lowerarm" />
+    <child link="rail_finger" />
+
+    <!-- Same gripper assembly frame as the gear/fixed finger -->
+    <origin xyz="0.12800 -0.06 0" rpy="0 0 1.5708" />
+
+    <!-- Mesh-local sliding direction. After the rpy above, +X becomes lowerarm +Y. -->
+    <axis xyz="1 0 0" />
+
+    <!-- Covers the slight negative calibrated gear angle and up to 25 mm travel. -->
+    <limit lower="-0.001" upper="0.025" effort="20.0" velocity="0.05" />
+
+    <!-- rail displacement in meters = gear angle in radians * pitch radius in meters -->
+    <mimic joint="end_effector_joint" multiplier="0.012" offset="0.0188496" />
+  </joint>
+
+  <link name="rail_finger">
+    <visual>
+      <origin xyz="0 -0.005 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rascl_description/meshes/rail_finger.stl"
+              scale="0.001 0.001 0.001" />
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0.010 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rascl_description/meshes/rail_finger.stl"
+              scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+
+
+
+  <!-- ========================= -->
+  <!-- Gripper task-space TCP -->
+  <!-- ========================= -->
+
+  <!--
+    Fixed task-space frame used by WP3 inverse kinematics.
+
+    The point is the midpoint between the two inner finger contact planes
+    when the gripper opening is 41 mm. It was derived from the current
+    fixed_finger.stl and rail_finger.stl geometry, including their URDF
+    visual-origin offsets.
+
+    Keep this frame fixed to lowerarm: end_effector_joint changes the jaw
+    opening, but must not rotate the task-space TCP frame.
+  -->
+  <link name="gripper_tcp" />
+
+  <joint name="gripper_tcp_joint" type="fixed">
+    <parent link="lowerarm" />
+    <child link="gripper_tcp" />
+    <!-- 124.09 mm lower arm + approximately 70 mm EOAT/gripper reach. -->
+    <origin xyz="0.185 -0.003 0.0" rpy="0 0 0" />
+  </joint>
+
+
+
+
+
+  <!-- ========================= -->
+  <!-- ros2_control -->
+  <!-- ========================= -->
+
+  <ros2_control name="rascl_hardware_interface" type="system">
+    <hardware>
+      <plugin>rascl_robot_control/RasclHardwareInterface</plugin>
+      <!-- Binary Unix-socket IPC to the cyclic PDO bridge. -->
+      <param name="command_socket">/tmp/rascl_csp.sock</param>
+      <param name="feedback_timeout_ms">250</param>
+      <param name="startup_feedback_timeout_ms">3000</param>
+    </hardware>
+
+    <joint name="shoulder_joint">
+      <command_interface name="position">
+        <param name="min">-1.570796327</param>
+        <param name="max">1.570796327</param>
+      </command_interface>
+      <state_interface name="position" />
+    </joint>
+
+    <joint name="upperarm_joint">
+      <command_interface name="position">
+        <param name="min">-1.5708</param>
+        <param name="max">1.5708</param>
+      </command_interface>
+      <state_interface name="position" />
+    </joint>
+
+    <joint name="lowerarm_joint">
+      <command_interface name="position">
+        <param name="min">-1.570</param>
+        <param name="max">1.571000</param>
+      </command_interface>
+      <state_interface name="position" />
+    </joint>
+    <joint name="end_effector_joint">
+      <command_interface name="position">
+        <param name="min">-0.70000</param>
+        <param name="max">0.020000</param>
+      </command_interface>
+      <state_interface name="position" />
+    </joint>
+  </ros2_control>
+
+</robot>

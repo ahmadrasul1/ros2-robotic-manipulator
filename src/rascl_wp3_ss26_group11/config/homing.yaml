@@ -1,0 +1,266 @@
+# Dependency-aware physical homing configuration for WP3.
+#
+# Runtime order used by hardware_bridge.py before CSP:
+#   1. Shoulder: search A, move A -> B, set B = 0 with method 37.
+#   2. Lower arm: move to its negative clearance boundary and hold there.
+#      The tested lower arm reaches its negative software limit before A.
+#   3. Upper arm: move to C, then return C -> B while the lower arm remains parked.
+#   4. Lower arm: leave the negative boundary, find B directly, set B = 0.
+#   5. Home the end effector toward its single switch and assign that switch to 0.
+#   6. Verify the three arm B switches and the end-effector switch at zero.
+#   7. Return to hardware_bridge.py. The selected startup mode explicitly decides
+#      whether a separate Profile Position move to pick-ready is performed.
+#
+# The end effector is homed last using its dedicated one-switch strategy.
+# Startup is considered fully referenced only after all four joints pass their
+# strategy-specific final reference checks.
+
+homing:
+  enabled: true
+
+  # hardware_bridge.py calls home_all_joints() explicitly for homing startup modes.
+  # Keep this false unless pysoem_bridge.py is deliberately run standalone.
+  run_on_startup: false
+
+  # Deprecated compatibility flag. home_all_joints() never performs unrelated
+  # positioning; hardware_bridge.py owns the explicit pick-ready startup step.
+  move_to_pick_ready_after_homing: false
+
+  timeout_s: 90.0
+
+  required_reference_joints:
+    - shoulder_joint
+    - upperarm_joint
+    - lowerarm_joint
+    - end_effector_joint
+
+  sequence:
+    - action: home
+      joint: shoulder_joint
+
+    - action: park_at_negative_boundary
+      joint: lowerarm_joint
+
+    - action: home
+      joint: upperarm_joint
+
+    - action: home_direct_to_b
+      joint: lowerarm_joint
+
+    - action: home
+      joint: end_effector_joint
+
+  # Fallback only for code that does not support homing.sequence.
+  order:
+    - shoulder_joint
+    - upperarm_joint
+    - lowerarm_joint
+    - end_effector_joint
+
+  # Per-joint physical calibration. ``home_offset_steps`` is a signed raw
+  # drive-position value written one-to-one to CiA-402 object 0x607C before
+  # homing starts. No degree/radian conversion is performed. Keep every value
+  # at 0 until its physical offset has been measured. Positive and negative
+  # values follow the drive's native position direction for that joint.
+  joints:
+    shoulder_joint:
+      enabled: true
+      slave_index: 0
+      strategy: negative_limit_then_reference_switch
+
+      negative_limit_switch_input: 1   # A
+      reference_switch_input: 2        # B
+      positive_limit_switch_input: 3   # C
+      negative_limit_active_low: true
+      reference_switch_active_low: true
+      positive_limit_active_low: true
+      filter_enabled: true
+      limit_switch_option_code: 1
+
+      prehome_search_distance_rad: -6.0
+      prehome_velocity: 200
+      prehome_acceleration: 20
+
+      reference_backoff_rad: 0.10
+      reference_search_distance_rad: 2.20
+      reference_search_velocity: 200
+      reference_search_acceleration: 20
+
+      set_zero_method: 37
+      reference_stable_time_s: 0.25
+      home_zero_tolerance_rad: 0.08
+      method: 37
+      switch_type: home
+      active_low: true
+      home_offset_steps: -20000
+      seek_velocity: 200
+      homing_velocity: 200
+      acceleration: 20
+      timeout_s: 90.0
+
+    upperarm_joint:
+      enabled: true
+      slave_index: 1
+      strategy: positive_limit_then_reference_switch
+
+      # The upper arm must approach reference switch B from the C/positive side.
+      # The lower arm remains held at its tested negative clearance boundary
+      # during the complete move to C and the return from C to B.
+      requires_joint_at_negative_boundary: lowerarm_joint
+
+      negative_limit_switch_input: 1   # A, diagnostic only
+      reference_switch_input: 2        # B
+      positive_limit_switch_input: 3   # C, required approach boundary
+      negative_limit_active_low: true
+      reference_switch_active_low: true
+      positive_limit_active_low: true
+      filter_enabled: true
+      limit_switch_option_code: 1
+
+      # First pass deliberately crosses B and parks on physical switch C.
+      positive_search_distance_rad: 7.0
+      positive_search_velocity: 200
+      positive_search_acceleration: 20
+      positive_search_timeout_s: 90.0
+      positive_boundary_stable_time_s: 0.25
+
+      # Once C is active, use the dedicated one-way C -> B search. Before B has
+      # been set to zero, the drive's normal negative software limit currently
+      # stops this joint just before physical B. Extend only that temporary
+      # pre-homing limit by 0.15 rad, keep physical A active as the abort
+      # boundary, and restore the original software limits after method 37.
+      # This path never reverses toward C when B is not detected.
+      c_to_b_search_distance_rad: 2.20
+      c_to_b_negative_software_limit_extension_rad: 0.15
+
+      # Shared direct-search motion parameters used by the dedicated C -> B
+      # routine. The preferred/reverse fields are retained only for manual
+      # HOME_DIRECT_TO_B diagnostics and are not used by normal upper-arm homing.
+      direct_search_preferred_direction: -1
+      direct_search_distance_rad: 2.20
+      direct_reverse_search_distance_rad: 3.20
+      direct_search_velocity: 200
+      direct_search_acceleration: 20
+      direct_search_timeout_s: 90.0
+      limit_escape_timeout_s: 2.0
+      minimum_escape_progress_rad: 0.005
+
+      # Retained because the shared A/B/C validation and diagnostics use them.
+      prehome_search_distance_rad: -7.0
+      reference_backoff_rad: 0.10
+      reference_search_distance_rad: 2.20
+      reference_search_velocity: 200
+      reference_search_acceleration: 20
+
+      set_zero_method: 37
+      reference_stable_time_s: 0.25
+      home_zero_tolerance_rad: 0.09
+      method: 37
+      switch_type: home
+      active_low: true
+      home_offset_steps: -22300
+      seek_velocity: 200
+      homing_velocity: 200
+      acceleration: 20
+      timeout_s: 90.0
+
+    lowerarm_joint:
+      enabled: true
+      slave_index: 2
+      strategy: direct_reference_switch
+
+      # Clearance parking: move negative until either A activates or the drive's
+      # negative software boundary becomes active. On the tested robot the latter
+      # occurs first at approximately -1.5708 rad.
+      clearance_search_direction: -1
+      clearance_search_distance_rad: 8.0
+      clearance_search_velocity: 200
+      clearance_search_acceleration: 20
+      clearance_search_timeout_s: 90.0
+      clearance_boundary_stable_time_s: 0.25
+
+      # After upper-arm homing, leave the negative boundary in the positive
+      # direction and cross reference switch B.
+      direct_search_preferred_direction: 1
+      direct_search_distance_rad: 2.20
+      direct_reverse_search_distance_rad: 3.20
+      direct_search_velocity: 200
+      direct_search_acceleration: 20
+      direct_search_timeout_s: 90.0
+      limit_escape_timeout_s: 2.0
+      minimum_escape_progress_rad: 0.005
+
+      negative_limit_switch_input: 1   # A; may remain inactive at boundary
+      reference_switch_input: 2        # B
+      positive_limit_switch_input: 3   # C
+      negative_limit_active_low: true
+      reference_switch_active_low: true
+      positive_limit_active_low: true
+      filter_enabled: true
+      limit_switch_option_code: 1
+
+      # Retained for shared parameter validation and legacy manual diagnostics.
+      prehome_search_distance_rad: -8.0
+      prehome_velocity: 200
+      prehome_acceleration: 20
+      reference_backoff_rad: 0.10
+      reference_search_distance_rad: 2.20
+      reference_search_velocity: 200
+      reference_search_acceleration: 20
+
+      set_zero_method: 37
+      reference_stable_time_s: 0.25
+      home_zero_tolerance_rad: 0.14
+      method: 37
+      switch_type: home
+      active_low: true
+      home_offset_steps: 31000
+      seek_velocity: 200
+      homing_velocity: 200
+      acceleration: 20
+      timeout_s: 90.0
+
+    end_effector_joint:
+      enabled: true
+      slave_index: 3
+      search_direction: -1
+
+      # Read the current joint position and move in the direction that reduces
+      # its absolute value. Continue slightly past the calculated zero until
+      # the one physical reference switch activates, then assign that position
+      # to exactly 0 rad with method 37.
+      strategy: toward_zero_single_switch
+      reference_switch_input: 1
+      active_low: true
+      filter_enabled: true
+
+      # Conservative Profile Position search settings.
+      seek_velocity: 200
+      acceleration: 50
+      timeout_s: 90.0
+      zero_search_margin_rad: 6.29
+
+      # Use the measured sign whenever |q| is larger than this tiny numerical
+      # tolerance. If q is effectively exactly zero but the switch is inactive,
+      # search in the positive direction instead of aborting.
+      zero_direction_epsilon_rad: 0.0005
+      zero_fallback_direction: 1
+
+      method: 37
+      switch_type: home
+      home_offset_steps: 0
+      home_zero_tolerance_rad: 0.02
+
+  # Current hardware-test start pose.
+  pick_ready_pose:
+    shoulder_joint: 0.0
+    upperarm_joint: 0.0
+    lowerarm_joint: 0.0
+    end_effector_joint: 0.0
+
+  pick_ready_velocity: 200
+  pick_ready_acceleration: 20
+  pick_ready_timeout_s: 90.0
+  pick_ready_tolerance_rad: 0.01
+  pick_ready_acknowledge_timeout_s: 2.0
+  pick_ready_limit_escape_distance_rad: 0.05

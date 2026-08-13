@@ -1,0 +1,10 @@
+<library path="rascl_hardware_interface">
+  <class
+    name="rascl_robot_control/RasclHardwareInterface"
+    type="rascl_robot_control::RasclHardwareInterface"
+    base_class_type="hardware_interface::SystemInterface">
+    <description>
+      Hardware interface for the RASCL robot.
+    </description>
+  </class>
+</library>

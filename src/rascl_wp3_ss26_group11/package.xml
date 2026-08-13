@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>rascl_wp3_ss26_group11</name>
+  <version>0.0.3</version>
+  <description>RASCL WP3 application package for offline and online minimum-jerk pick-and-place execution.</description>
+
+  <maintainer email="group11@example.invalid">Group 11</maintainer>
+  <license>Proprietary</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <depend>rclpy</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>trajectory_msgs</depend>
+  <depend>builtin_interfaces</depend>
+  <depend>ament_index_python</depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+
+  <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-matplotlib</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

@@ -1,0 +1,33 @@
+# Joint limits used by the offline trajectory validator.
+# Keep these synchronized with rascl_description/urdf/rascl.urdf.xacro.
+# TODO(GROUP11): Replace these conservative limits after measuring the real safe
+# limits with your gripper mounted and after checking cable/mechanical stops.
+
+joint_names:
+  - shoulder_joint
+  - upperarm_joint
+  - lowerarm_joint
+  - end_effector_joint
+
+position_limits:
+  shoulder_joint: [-1.570796327, 1.570796327]
+  upperarm_joint: [-1.5708, 1.5708]
+  lowerarm_joint: [-1.571000, 1.571000]
+  end_effector_joint: [-0.700000, 0.020000]
+
+# rad/s. The end-effector value is consistent with the configured 500 rpm
+# motor-speed floor and 323:1 gearbox, while retaining margin above the active
+# trajectory peak (~0.057 rad/s).
+velocity_limits:
+  shoulder_joint: 6.0
+  upperarm_joint: 6.0
+  lowerarm_joint: 6.0
+  end_effector_joint: 0.8
+
+# rad/s^2. Used only for offline sanity checks at this stage.
+# TODO(GROUP11): Tune after simulation and low-speed hardware tests.
+acceleration_limits:
+  shoulder_joint: 3.5
+  upperarm_joint: 3.5
+  lowerarm_joint: 3.5
+  end_effector_joint: 2.0

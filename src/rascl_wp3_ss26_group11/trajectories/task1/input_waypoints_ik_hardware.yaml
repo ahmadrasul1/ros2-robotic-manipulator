@@ -1,0 +1,433 @@
+metadata:
+  generated_by: generate_task1_waypoints_rtb.py
+  ik_library: Robotics Toolbox for Python
+  ik_method: Levenberg-Marquardt, position-only mask
+  kinematic_model_revision: group11_physical_geometry_z_calibration_v2
+  gripper_mode: hardware
+  poses_sha256: 33ae0f2c13fe99f6de43f9b82851c33899ce7b868fd31bacb30c249ffe689d90
+  urdf_sha256: 9ee9403a898d597691f8a780caeea9454e8ac2044fc6fc26227bed67d79798b4
+  joint_order:
+  - shoulder_joint
+  - upperarm_joint
+  - lowerarm_joint
+  - end_effector_joint
+settings:
+  dt: 0.05
+  default_duration: 5.0
+  default_gripper_action_duration: 6.0
+  ik_position_tolerance_m: 0.0005
+  target_z_correction_m: 0.0
+  location_z_correction_m:
+    cube1_start: 0.0
+    cube2_3_start: 0.0
+    cube3_buffer: 0.0
+    goal: 0.0
+  target_xy_correction_base_m:
+  - 0.0
+  - 0.0
+cartesian_targets_base_m:
+  above_cube3_start:
+  - 0.17889913319799505
+  - 0.04466654386681405
+  - 0.128
+  grasp_cube3_start:
+  - 0.17889913319799505
+  - 0.04466654386681405
+  - 0.068
+  above_cube3_buffer:
+  - 0.1470892493251474
+  - 0.11386286810442037
+  - 0.088
+  grasp_cube3_buffer:
+  - 0.1470892493251474
+  - 0.11386286810442037
+  - 0.028
+  above_cube1:
+  - 0.12567951331237884
+  - -0.21680558095575767
+  - 0.088
+  grasp_cube1:
+  - 0.12567951331237884
+  - -0.21680558095575767
+  - 0.028
+  above_goal_bottom:
+  - 0.06737629836209248
+  - 0.10178621919995995
+  - 0.088
+  place_goal_bottom:
+  - 0.06737629836209248
+  - 0.10178621919995995
+  - 0.028
+  above_cube2_start:
+  - 0.17889913319799505
+  - 0.04466654386681405
+  - 0.088
+  grasp_cube2_start:
+  - 0.17889913319799505
+  - 0.04466654386681405
+  - 0.028
+  above_goal_middle:
+  - 0.06737629836209248
+  - 0.10178621919995995
+  - 0.128
+  place_goal_middle:
+  - 0.06737629836209248
+  - 0.10178621919995995
+  - 0.068
+  above_goal_top:
+  - 0.06737629836209248
+  - 0.10178621919995995
+  - 0.168
+  place_goal_top:
+  - 0.06737629836209248
+  - 0.10178621919995995
+  - 0.10800000000000001
+ik_position_error_m:
+  above_cube3_start: 1.7481728998285404e-14
+  grasp_cube3_start: 2.9621212193721642e-08
+  above_cube3_buffer: 5.1908536767881917e-08
+  grasp_cube3_buffer: 2.401631038589101e-08
+  above_cube1: 1.3035883274769713e-08
+  grasp_cube1: 2.3153881867626146e-08
+  above_goal_bottom: 1.642832295958865e-08
+  place_goal_bottom: 1.859501237975824e-08
+  above_cube2_start: 5.710973394968365e-08
+  grasp_cube2_start: 3.736804719518183e-08
+  above_goal_middle: 2.6801809548828334e-08
+  place_goal_middle: 3.233051813866177e-08
+  above_goal_top: 5.081480462118897e-09
+  place_goal_top: 5.7303808217113364e-08
+waypoints:
+  pick_ready:
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  above_cube3_start_open:
+  - 0.19084750680127893
+  - 0.09633141135213874
+  - 0.9116988718075687
+  - 0.0
+  above_cube3_start_hold:
+  - 0.19084750680127893
+  - 0.09633141135213874
+  - 0.9116988718075687
+  - -0.55
+  grasp_cube3_start_open:
+  - 0.19084748755392944
+  - 0.41980303725860324
+  - 0.8639224337069233
+  - 0.0
+  grasp_cube3_start_hold:
+  - 0.19084748755392944
+  - 0.41980303725860324
+  - 0.8639224337069233
+  - -0.55
+  above_cube3_buffer_open:
+  - 0.605396405711756
+  - 0.3121948352886177
+  - 0.8823332203441385
+  - 0.0
+  above_cube3_buffer_hold:
+  - 0.605396405711756
+  - 0.3121948352886177
+  - 0.8823332203441385
+  - -0.55
+  grasp_cube3_buffer_open:
+  - 0.6053965753353729
+  - 0.6446951269398413
+  - 0.7615865648716147
+  - 0.0
+  grasp_cube3_buffer_hold:
+  - 0.6053965753353729
+  - 0.6446951269398413
+  - 0.7615865648716147
+  - -0.55
+  above_cube1_open:
+  - -1.0850417558024992
+  - 0.4843888237036711
+  - 0.44252355369402796
+  - 0.0
+  above_cube1_hold:
+  - -1.0850417558024992
+  - 0.4843888237036711
+  - 0.44252355369402796
+  - -0.55
+  grasp_cube1_open:
+  - -1.0850417587162897
+  - 0.7551020003234523
+  - 0.33021173827417716
+  - 0.0
+  grasp_cube1_hold:
+  - -1.0850417587162897
+  - 0.7551020003234523
+  - 0.33021173827417716
+  - -0.55
+  above_goal_bottom_open:
+  - 0.9047160410761625
+  - 0.2132292363670225
+  - 1.2597535228053767
+  - 0.0
+  above_goal_bottom_hold:
+  - 0.9047160410761625
+  - 0.2132292363670225
+  - 1.2597535228053767
+  - -0.55
+  place_goal_bottom_open:
+  - 0.9047161446608092
+  - 0.6487752297948468
+  - 1.1076350986846508
+  - 0.0
+  place_goal_bottom_hold:
+  - 0.9047161446608092
+  - 0.6487752297948468
+  - 1.1076350986846508
+  - -0.55
+  above_cube2_start_open:
+  - 0.19084776380469126
+  - 0.3087130844747681
+  - 0.8924563698306685
+  - 0.0
+  above_cube2_start_hold:
+  - 0.19084776380469126
+  - 0.3087130844747681
+  - 0.8924563698306685
+  - -0.55
+  grasp_cube2_start_open:
+  - 0.19084766822876098
+  - 0.643241901412754
+  - 0.771225225172568
+  - 0.0
+  grasp_cube2_start_hold:
+  - 0.19084766822876098
+  - 0.643241901412754
+  - 0.771225225172568
+  - -0.55
+  above_goal_middle_open:
+  - 0.9047159856350113
+  - -0.09424318766661477
+  - 1.28531309044115
+  - 0.0
+  above_goal_middle_hold:
+  - 0.9047159856350113
+  - -0.09424318766661477
+  - 1.28531309044115
+  - -0.55
+  place_goal_middle_open:
+  - 0.9047161367523513
+  - 0.36570762271570345
+  - 1.2226672711836164
+  - 0.0
+  place_goal_middle_hold:
+  - 0.9047161367523513
+  - 0.36570762271570345
+  - 1.2226672711836164
+  - -0.55
+  above_goal_top_open:
+  - 0.9047161484605288
+  - -0.36369151870799366
+  - 1.2430994200935874
+  - 0.0
+  above_goal_top_hold:
+  - 0.9047161484605288
+  - -0.36369151870799366
+  - 1.2430994200935874
+  - -0.55
+  place_goal_top_open:
+  - 0.904715918393328
+  - 0.057971560742807515
+  - 1.281002523144016
+  - 0.0
+  place_goal_top_hold:
+  - 0.904715918393328
+  - 0.057971560742807515
+  - 1.281002523144016
+  - -0.55
+trajectories:
+  task1_full:
+  - name: pick_ready_to_above_cube3_start_open
+    from: pick_ready
+    to: above_cube3_start_open
+    duration: 5.0
+    gripper: 0.0
+  - name: descend_cube3_start_open
+    from: above_cube3_start_open
+    to: grasp_cube3_start_open
+    duration: 3.0
+    gripper: 0.0
+    interpolation: cartesian_linear
+  - name: close_cube3_start
+    from: grasp_cube3_start_open
+    to: grasp_cube3_start_hold
+    duration: 6.0
+    gripper: 1.0
+  - name: lift_cube3_start
+    from: grasp_cube3_start_hold
+    to: above_cube3_start_hold
+    duration: 3.0
+    gripper: 1.0
+    interpolation: cartesian_linear
+  - name: transfer_cube3_to_buffer
+    from: above_cube3_start_hold
+    to: above_cube3_buffer_hold
+    duration: 5.0
+    gripper: 1.0
+  - name: descend_cube3_buffer
+    from: above_cube3_buffer_hold
+    to: grasp_cube3_buffer_hold
+    duration: 3.0
+    gripper: 1.0
+    interpolation: cartesian_linear
+  - name: open_cube3_buffer
+    from: grasp_cube3_buffer_hold
+    to: grasp_cube3_buffer_open
+    duration: 6.0
+    gripper: 0.0
+  - name: retreat_cube3_buffer
+    from: grasp_cube3_buffer_open
+    to: above_cube3_buffer_open
+    duration: 3.0
+    gripper: 0.0
+    interpolation: cartesian_linear
+  - name: buffer_to_above_cube1
+    from: above_cube3_buffer_open
+    to: above_cube1_open
+    duration: 5.0
+    gripper: 0.0
+  - name: descend_cube1
+    from: above_cube1_open
+    to: grasp_cube1_open
+    duration: 3.0
+    gripper: 0.0
+    interpolation: cartesian_linear
+  - name: close_cube1
+    from: grasp_cube1_open
+    to: grasp_cube1_hold
+    duration: 6.0
+    gripper: 1.0
+  - name: lift_cube1
+    from: grasp_cube1_hold
+    to: above_cube1_hold
+    duration: 3.0
+    gripper: 1.0
+    interpolation: cartesian_linear
+  - name: transfer_cube1_to_goal
+    from: above_cube1_hold
+    to: above_goal_bottom_hold
+    duration: 5.0
+    gripper: 1.0
+  - name: descend_goal_bottom
+    from: above_goal_bottom_hold
+    to: place_goal_bottom_hold
+    duration: 3.0
+    gripper: 1.0
+    interpolation: cartesian_linear
+  - name: open_goal_bottom
+    from: place_goal_bottom_hold
+    to: place_goal_bottom_open
+    duration: 6.0
+    gripper: 0.0
+  - name: retreat_goal_bottom
+    from: place_goal_bottom_open
+    to: above_goal_bottom_open
+    duration: 3.0
+    gripper: 0.0
+    interpolation: cartesian_linear
+  - name: goal_to_above_cube2
+    from: above_goal_bottom_open
+    to: above_cube2_start_open
+    duration: 5.0
+    gripper: 0.0
+  - name: descend_cube2
+    from: above_cube2_start_open
+    to: grasp_cube2_start_open
+    duration: 3.0
+    gripper: 0.0
+    interpolation: cartesian_linear
+  - name: close_cube2
+    from: grasp_cube2_start_open
+    to: grasp_cube2_start_hold
+    duration: 6.0
+    gripper: 1.0
+  - name: lift_cube2
+    from: grasp_cube2_start_hold
+    to: above_cube2_start_hold
+    duration: 3.0
+    gripper: 1.0
+    interpolation: cartesian_linear
+  - name: transfer_cube2_to_goal
+    from: above_cube2_start_hold
+    to: above_goal_middle_hold
+    duration: 5.0
+    gripper: 1.0
+  - name: descend_goal_middle
+    from: above_goal_middle_hold
+    to: place_goal_middle_hold
+    duration: 3.0
+    gripper: 1.0
+    interpolation: cartesian_linear
+  - name: open_goal_middle
+    from: place_goal_middle_hold
+    to: place_goal_middle_open
+    duration: 8.0
+    gripper: 0.0
+  - name: retreat_goal_middle
+    from: place_goal_middle_open
+    to: above_goal_middle_open
+    duration: 3.0
+    gripper: 0.0
+    interpolation: cartesian_linear
+  - name: goal_to_above_cube3_buffer
+    from: above_goal_middle_open
+    to: above_cube3_buffer_open
+    duration: 5.0
+    gripper: 0.0
+  - name: descend_cube3_buffer_for_goal
+    from: above_cube3_buffer_open
+    to: grasp_cube3_buffer_open
+    duration: 3.0
+    gripper: 0.0
+    interpolation: cartesian_linear
+  - name: close_cube3_buffer
+    from: grasp_cube3_buffer_open
+    to: grasp_cube3_buffer_hold
+    duration: 6.0
+    gripper: 1.0
+  - name: lift_cube3_buffer
+    from: grasp_cube3_buffer_hold
+    to: above_cube3_buffer_hold
+    duration: 3.0
+    gripper: 1.0
+    interpolation: cartesian_linear
+  - name: transfer_cube3_to_goal
+    from: above_cube3_buffer_hold
+    to: above_goal_top_hold
+    duration: 5.0
+    gripper: 1.0
+  - name: descend_goal_top
+    from: above_goal_top_hold
+    to: place_goal_top_hold
+    duration: 3.0
+    gripper: 1.0
+    interpolation: cartesian_linear
+  - name: open_goal_top
+    from: place_goal_top_hold
+    to: place_goal_top_open
+    duration: 6.0
+    gripper: 0.0
+  - name: retreat_goal_top
+    from: place_goal_top_open
+    to: above_goal_top_open
+    duration: 3.0
+    gripper: 0.0
+    interpolation: cartesian_linear
+  - name: final_tower_hold_3_seconds
+    from: above_goal_top_open
+    to: above_goal_top_open
+    duration: 3.0
+    gripper: 0.0
+  - name: return_to_pick_ready
+    from: above_goal_top_open
+    to: pick_ready
+    duration: 5.0
+    gripper: 0.0

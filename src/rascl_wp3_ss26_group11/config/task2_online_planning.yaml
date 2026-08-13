@@ -1,0 +1,109 @@
+# WP3 Task 2 online motion-planning configuration.
+#
+# IMPORTANT:
+# - All linear dimensions in this file are in metres (m).
+# - The workspace radii below are the final values stored with this project
+#   snapshot. Re-verify them before using a different physical setup.
+# - geometry_msgs/msg/Point is required by the task sheet. point.x and point.y
+#   are board coordinates. point.z is ignored. The TCP height is calculated
+#   from the board height and half of the 40 mm cube height.
+
+frames:
+  robot_base_frame: base_link
+  tool_frame: gripper_tcp
+
+input:
+  topic: /goal_poses
+  message_type: geometry_msgs/msg/Point
+  xy_frame: board
+  units: m
+  use_point_x: true
+  use_point_y: true
+  ignore_point_z: true
+
+board:
+  # Existing measured board top-surface height from the frozen Task 1 setup.
+  surface_z_m: 0.0080
+
+  # Residual translation in base_link axes. Keep this at zero while calibrating
+  # yaw; apply a constant XY correction only after the distance-dependent
+  # angular error has been removed.
+  target_xy_correction_base_m: [0.0, 0.0]
+
+  # Used only to express the fixed Task 1 goal in the same board coordinates as
+  # task1_cube_poses.yaml.
+  board_to_base_xy:
+    x_base_from: y_board
+    y_base_from: x_board
+    x_base_sign: 1.0
+    y_base_sign: 1.0
+
+    # Additional measured rotation of the physical board relative to the
+    # nominal board/base alignment. Positive is counterclockwise around +Z_base.
+    # yaw_correction_rad: 0.09053
+    # yaw_correction_rad: 0.0523599
+    yaw_correction_rad: 0.0260033
+
+
+cube:
+  height_m: 0.040
+
+workspace:
+  units: m
+
+  # Final workspace values stored with this project snapshot. These values are
+  # hardware/setup specific and should be re-verified after mechanical changes.
+  min_radius_m: 0.10
+  max_radius_m: 0.38
+  values_are_placeholders: false
+
+  # Professor-specified shoulder-joint sector: -0.5*pi to +0.5*pi.
+  # This is checked against the IK shoulder_joint result, not atan2(y, x),
+  # because the current URDF has small fixed XY offsets between base_link and
+  # the arm chain.
+  min_shoulder_joint_rad: -1.570796327
+  max_shoulder_joint_rad: 1.570796327
+
+# Task 2 uses the same fixed goal as the frozen Task 1 configuration. It is on
+# the right side and lies inside the feasible workspace; it is intentionally NOT
+# forced onto the maximum-radius boundary.
+goal:
+  source: task1_goal
+  board_xy_m: [0.100, 0.070]
+
+planning:
+  # Existing frozen Task 1 values, reused without changing Task 1.
+  approach_clearance_m: 0.060
+  ik_position_tolerance_m: 0.0005
+  pick_ready_arm_rad: [0.0, 0.0, 0.0]
+  random_seed: 11
+  cartesian_max_joint_step_rad: 0.08
+
+  # Existing Task 1 motion durations.
+  transfer_duration_s: 5.0
+  vertical_duration_s: 3.0
+  gripper_action_duration_s: 6.0
+  return_duration_s: 5.0
+
+  # Existing Task 1 planning resolution and controller rate.
+  planning_sample_period_s: 0.05
+  publish_rate_hz: 100.0
+
+  # The arm must be at the homed pick-ready position before a new cube is
+  # accepted. The trajectory itself starts from the latest measured state.
+  require_pick_ready_before_request: true
+  start_pose_tolerance_rad: [0.03, 0.03, 0.03]
+  start_gripper_tolerance_rad: 0.05
+  # Matches the existing 250 ms ros2_control hardware feedback timeout.
+  joint_state_timeout_s: 0.25
+
+gripper:
+  open_rad: 0.0
+  simulation_hold_rad: -0.416
+  hardware_hold_rad: -0.55
+
+hardware:
+  ready_file: /tmp/rascl_pdo_ready
+  require_arm_reference: true
+  require_gripper_reference: true
+  require_allow_motion: true
